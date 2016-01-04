@@ -1,0 +1,19 @@
+<lifecycles xmlns="http://maven.apache.org/LIFECYCLE/1.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/LIFECYCLE/1.0.0 http://maven.apache.org/xsd/lifecycle-1.0.0.xsd">
+  <lifecycle>
+    <id>generate-vakkentabel-sources</id>
+    <phases>
+      <phase>
+        <id>generate-sources</id>
+        <executions>
+          <execution>
+            <goals>
+            	<goal>generate-sources</goal>
+            </goals>            
+          </execution>
+        </executions>
+        <configuration/>
+      </phase>
+    </phases>
+  </lifecycle>
+</lifecycles>
