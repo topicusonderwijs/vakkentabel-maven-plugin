@@ -18,6 +18,19 @@
 		<name>Topicus Onderwijs B.V.</name>
 		<url>http://www.topicus.nl/onderwijs</url>
 	</organization>
+	
+	<inceptionYear>2015</inceptionYear>
+
+	<issueManagement>
+		<system>GitHub</system>
+		<url>https://github.com/topicusonderwijs/vakkentabel-maven-plugin/issues</url>
+	</issueManagement>
+	
+	<scm>
+		<url>https://github.com/topicusonderwijs/vakkentabel-maven-plugin</url>
+		<connection>scm:git:git@github.com:topicusonderwijs/vakkentabel-maven-plugin.git</connection>
+		<tag>HEAD</tag>
+	</scm>
 
 	<dependencies>
 		<dependency>
