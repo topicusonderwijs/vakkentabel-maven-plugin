@@ -1,4 +1,4 @@
-package nl.topicus.vakkentabel;
+package nl.topicus.onderwijs.vakkentabel;
 
 import java.io.File;
 import java.io.IOException;

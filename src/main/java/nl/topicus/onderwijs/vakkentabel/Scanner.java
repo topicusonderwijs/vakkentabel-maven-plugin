@@ -1,4 +1,4 @@
-package nl.topicus.vakkentabel;
+package nl.topicus.onderwijs.vakkentabel;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -6,6 +6,8 @@ import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.PrintStream;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -23,6 +25,8 @@ import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
 public class Scanner
 {
+	private static DateTimeFormatter iso8601format = DateTimeFormatter.ISO_OFFSET_DATE_TIME;
+
 	private Multimap<Integer, Integer> vakOpleidingMapping;
 
 	private Multimap<Integer, Integer> beroepsGerichteVakken;
@@ -34,6 +38,8 @@ public class Scanner
 	private Map<String, Multimap<Integer, Integer>> eindIndicaties;
 
 	private Map<String, Multimap<Integer, Integer>> cijferLijstIndicaties;
+
+	final String currentDateIso8601 = LocalDateTime.now().format(iso8601format);
 
 	public Scanner()
 	{
@@ -339,11 +345,15 @@ public class Scanner
 			}
 			ps.println();
 			ps.println("/**");
-			ps.println(" * Gegeneerd door {@code nl.topicus.vakkentabel.VakkentabelMojo}");
+			ps.println(" * Gegeneerd door {@code nl.topicus.onderwijs.vakkentabel.VakkentabelMojo}");
 			ps.println(" * @see <a");
 			ps.println(" *      href=\"https://github.com/topicusonderwijs/vakkentabel-maven-plugin/wiki/Vakkentabel-DUO\">Vakkentabel");
 			ps.println(" *      DUO</a>");
 			ps.println(" */");
+			ps.printf(
+				"@Generated(value={\"nl.topicus.onderwijs.vakkentabel.VakkentabelMojo\"}, date=\"%s\")",
+				currentDateIso8601);
+			ps.println();
 			ps.printf("public class %s {", className);
 			ps.println();
 
@@ -354,5 +364,4 @@ public class Scanner
 		}
 
 	}
-
 }
