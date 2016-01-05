@@ -6,7 +6,7 @@ import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.PrintStream;
-import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Collection;
 import java.util.Map;
@@ -39,7 +39,7 @@ public class Scanner
 
 	private Map<String, Multimap<Integer, Integer>> cijferLijstIndicaties;
 
-	final String currentDateIso8601 = LocalDateTime.now().format(iso8601format);
+	final String currentDateIso8601 = ZonedDateTime.now().format(iso8601format);
 
 	public Scanner()
 	{
