@@ -337,6 +337,8 @@ public class Scanner
 			ps.printf("package %s;", packageName);
 			ps.println();
 			ps.println();
+			ps.println("import javax.annotation.Generated;");
+			ps.println();
 			ps.println("import com.google.common.collect.Sets;");
 			for (String i : extraImports)
 			{
