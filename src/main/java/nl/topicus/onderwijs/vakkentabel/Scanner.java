@@ -25,7 +25,7 @@ import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
 public class Scanner
 {
-	private static DateTimeFormatter iso8601format = DateTimeFormatter.ISO_OFFSET_DATE_TIME;
+	private static DateTimeFormatter ISO_8601_FORMAT = DateTimeFormatter.ISO_OFFSET_DATE_TIME;
 
 	private Multimap<Integer, Integer> vakOpleidingMapping;
 
@@ -39,7 +39,7 @@ public class Scanner
 
 	private Map<String, Multimap<Integer, Integer>> cijferLijstIndicaties;
 
-	final String currentDateIso8601 = ZonedDateTime.now().format(iso8601format);
+	final String currentDateIso8601 = ZonedDateTime.now().format(ISO_8601_FORMAT);
 
 	public Scanner()
 	{
