@@ -21,7 +21,7 @@ It probably won't be of use for non-Dutch except as an example of how to create 
   <pluginManagement>
     <plugins>
       <plugin>
-        <groupId>nl.topicus.vakkentabel</groupId>
+        <groupId>nl.topicus.onderwijs.vakkentabel</groupId>
         <artifactId>vakkentabel-maven-plugin</artifactId>
         <version>0.9-SNAPSHOT</version>
         <executions>
@@ -50,7 +50,7 @@ It probably won't be of use for non-Dutch except as an example of how to create 
 		<build>
 			<plugins>
 				<plugin>
-					<groupId>nl.topicus.vakkentabel</groupId>
+					<groupId>nl.topicus.onderwijs.vakkentabel</groupId>
 					<artifactId>vakkentabel-maven-plugin</artifactId>
 				</plugin>
 			</plugins>
