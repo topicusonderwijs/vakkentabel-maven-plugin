@@ -8,6 +8,12 @@ De plugin is gebouwd voor Maven3 en geschikt voor zowel commandline uitvoer als 
 
 Zie hieronder wat je moet toevoegen in je pom.xml om deze plugin te gebruiken
 
+Releasen
+=========
+
+* mvn release:prepare 
+* mvn release:perform 
+
 # English translation
 
 This is a maven plugin to convert Dutch educational information from DUO to util classes which answer such questions as whether or not a subject is required for a specific curriculum.
