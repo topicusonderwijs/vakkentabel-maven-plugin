@@ -8,47 +8,40 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.Collection;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.function.Consumer;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
+import javax.annotation.CheckForNull;
+import javax.annotation.Nonnull;
+
+import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-import com.google.common.collect.Multimap;
-import com.google.common.collect.TreeMultimap;
+import com.google.common.collect.Table;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
+/**
+ * Parser voor CSV-bestanden in het door DUO aangeleverde formaat
+ *
+ * @author steenbeeke
+ */
 public class Scanner
 {
 	private static DateTimeFormatter ISO_8601_FORMAT = DateTimeFormatter.ISO_OFFSET_DATE_TIME;
 
-	private Multimap<Integer, Integer> vakOpleidingMapping;
-
-	private Multimap<Integer, Integer> beroepsGerichteVakken;
-
-	private Map<String, Multimap<Integer, Integer>> seIndicaties;
-
-	private Map<String, Multimap<Integer, Integer>> ceIndicaties;
-
-	private Map<String, Multimap<Integer, Integer>> eindIndicaties;
-
-	private Map<String, Multimap<Integer, Integer>> cijferLijstIndicaties;
+	private Table<Integer, Integer, VakRegel> gelezenRegels;
 
 	final String currentDateIso8601 = ZonedDateTime.now().format(ISO_8601_FORMAT);
 
 	public Scanner()
 	{
-		vakOpleidingMapping = TreeMultimap.create();
-		beroepsGerichteVakken = TreeMultimap.create();
-		ceIndicaties = Maps.newTreeMap();
-		seIndicaties = Maps.newTreeMap();
-		eindIndicaties = Maps.newTreeMap();
-		cijferLijstIndicaties = Maps.newTreeMap();
+
+		gelezenRegels = HashBasedTable.create();
 	}
 
 	@SuppressFBWarnings(value = "DM_DEFAULT_ENCODING",
@@ -62,47 +55,11 @@ public class Scanner
 
 			while ((next = reader.readLine()) != null)
 			{
-				String[] fields = next.split(",");
+				VakRegel regel = VakRegel.parse(next);
 
-				if (fields.length > 11)
+				if (regel != null)
 				{
-					String vakcode = fields[0];
-					String opleidingCode = fields[3];
-
-					try
-					{
-						Integer vakElementCode = Integer.parseInt(vakcode);
-						Integer opleidingElementCode = Integer.parseInt(opleidingCode);
-
-						if (vakElementCode != null && opleidingElementCode != null)
-						{
-							vakOpleidingMapping.put(opleidingElementCode, vakElementCode);
-
-							String seIndicatie = fields[7];
-							String ceIndicatie = fields[8];
-
-							if (fields[5].equals("1"))
-							{
-								beroepsGerichteVakken.put(opleidingElementCode, vakElementCode);
-								ceIndicatie = "V";
-							}
-
-							addIndicatie(seIndicaties, vakElementCode, opleidingElementCode,
-								seIndicatie);
-							addIndicatie(ceIndicaties, vakElementCode, opleidingElementCode,
-								ceIndicatie);
-							addIndicatie(eindIndicaties, vakElementCode, opleidingElementCode,
-								fields[9]);
-							addIndicatie(cijferLijstIndicaties, vakElementCode,
-								opleidingElementCode, fields[10]);
-
-						}
-
-					}
-					catch (NumberFormatException nfe)
-					{
-						// Skip record
-					}
+					addRegel(regel.getRegistratieCode(), regel.getVakcode(), regel);
 				}
 			}
 		}
@@ -110,52 +67,20 @@ public class Scanner
 		return this;
 	}
 
-	private void addIndicatie(Map<String, Multimap<Integer, Integer>> target,
-			Integer vakElementCode, Integer opleidingElementCode, String indicatieType)
+	private void addRegel(int opleiding, int vakcode, @Nonnull VakRegel regel)
 	{
-		if (!target.containsKey(indicatieType))
-		{
-			target.put(indicatieType, TreeMultimap.<Integer, Integer> create());
-		}
+		gelezenRegels.put(opleiding, vakcode, regel);
 
-		target.get(indicatieType).put(opleidingElementCode, vakElementCode);
 	}
 
-	private void generateCheckerMethode(PrintStream printStream,
-			Map<Integer, Collection<Integer>> map, String methodeNaam)
+	@CheckForNull
+	public VakRegel getRegel(int opleiding, int vakcode)
 	{
-		printStream.println("\tpublic static boolean " + methodeNaam
-			+ "(int opleidingIlt, int vakIlt)\n");
-		printStream.println("\t{");
-		printStream.println("\t\tswitch(opleidingIlt)");
-		printStream.println("\t\t{");
-
-		for (Entry<Integer, Collection<Integer>> e : map.entrySet())
-		{
-			printStream.printf("\t\t\tcase %d: ", e.getKey());
-			printStream.println();
-
-			int i = 0;
-
-			printStream.print("\t\t\t\treturn Sets.newHashSet(");
-
-			for (Integer ilt : e.getValue())
-			{
-				if (i++ > 0)
-					printStream.print(", ");
-				printStream.printf("%d", ilt);
-			}
-
-			printStream.println(").contains(vakIlt);");
-		}
-		printStream.println("\t\t}");
-		printStream.println();
-		printStream.println("\t\treturn false;");
-		printStream.println("\t}");
+		return gelezenRegels.get(opleiding, vakcode);
 	}
 
 	private void generateAdvancedCheckerMethode(PrintStream printStream,
-			Map<Integer, Collection<Integer>> map, String methodeNaam)
+			Predicate<VakRegel> vakRegelPredicate, String methodeNaam)
 	{
 		printStream.println("\tpublic static boolean " + methodeNaam
 			+ "(int opleidingIlt, int vakIlt)\n");
@@ -163,35 +88,44 @@ public class Scanner
 		printStream.println("\t\tswitch(opleidingIlt)");
 		printStream.println("\t\t{");
 
-		for (Entry<Integer, Collection<Integer>> e : map.entrySet())
+		for (Integer opleiding : gelezenRegels.rowKeySet())
 		{
-			printStream.printf("\t\t\tcase %d: ", e.getKey());
+			printStream.printf("\t\t\tcase %d: ", opleiding);
 			printStream.println();
 
-			printStream.printf("\t\t\t\treturn %sVoorIlt%d(vakIlt);", methodeNaam, e.getKey());
+			printStream.printf("\t\t\t\treturn %sVoorIlt%d(vakIlt);", methodeNaam, opleiding);
 			printStream.println();
 		}
+
 		printStream.println("\t\t}");
 		printStream.println();
 		printStream.println("\t\treturn false;");
 		printStream.println("\t}");
 		printStream.println();
 
-		for (Entry<Integer, Collection<Integer>> e : map.entrySet())
+		for (Entry<Integer, Map<Integer, VakRegel>> entry : gelezenRegels.rowMap().entrySet())
 		{
+			int opleiding = entry.getKey();
+
 			printStream.println("\t// Omzeil Java limiet van 65K bytes code");
 			printStream.printf("\tprivate static boolean %sVoorIlt%d(int vakIlt)", methodeNaam,
-				e.getKey());
+				opleiding);
 			printStream.println();
 			printStream.println("\t{");
 			//
 			printStream.print("\t\treturn Sets.newHashSet(");
 			int i = 0;
-			for (Integer ilt : e.getValue())
+			for (Entry<Integer, VakRegel> vakEntry : entry.getValue().entrySet())
 			{
-				if (i++ > 0)
-					printStream.print(", ");
-				printStream.printf("%d", ilt);
+				Integer vakcode = vakEntry.getKey();
+				VakRegel vakRegel = vakEntry.getValue();
+
+				if (vakRegelPredicate.test(vakRegel))
+				{
+					if (i++ > 0)
+						printStream.print(", ");
+					printStream.printf("%d", vakcode);
+				}
 			}
 
 			printStream.println(").contains(vakIlt);");
@@ -204,20 +138,19 @@ public class Scanner
 
 	private void generateBeroepsgerichteVakkenRule(PrintStream ps)
 	{
-		Map<Integer, Collection<Integer>> map = beroepsGerichteVakken.asMap();
 
 		ps.println("\tpublic static BronVakRule getBeroepsgerichteVakken(int iltCode)\n");
 		ps.println("\t{");
 		ps.println("\t\tswitch(iltCode)");
 		ps.println("\t\t{");
 
-		for (Entry<Integer, Collection<Integer>> e : map.entrySet())
+		for (Integer opleiding : gelezenRegels.rowKeySet())
 		{
-			ps.printf("\t\t\tcase %d: ", e.getKey());
+			ps.printf("\t\t\tcase %d: ", opleiding);
 			ps.println();
 
 			ps.print("\t\t\t\treturn getBeroepsgerichteVakken");
-			ps.print(e.getKey());
+			ps.print(opleiding);
 			ps.println("();");
 		}
 
@@ -227,22 +160,31 @@ public class Scanner
 		ps.println("\t}");
 		ps.println();
 
-		for (Entry<Integer, Collection<Integer>> e : map.entrySet())
+		for (Entry<Integer, Map<Integer, VakRegel>> entry : gelezenRegels.rowMap().entrySet())
 		{
+			int opleiding = entry.getKey();
 
 			ps.print("\tprivate static BronVakRule getBeroepsgerichteVakken");
-			ps.print(e.getKey());
+			ps.print(opleiding);
 			ps.print("()\n");
 			ps.println("\t{");
 
 			ps.print("\t\treturn any(");
 
 			int i = 0;
-			for (Integer ilt : e.getValue())
+
+			for (Entry<Integer, VakRegel> vakEntry : entry.getValue().entrySet())
 			{
-				if (i++ > 0)
-					ps.print(", ");
-				ps.printf("%d", ilt);
+				Integer vakcode = vakEntry.getKey();
+				VakRegel vakRegel = vakEntry.getValue();
+
+				if (vakRegel.isBeroepsgerichtVak())
+				{
+					if (i++ > 0)
+						ps.print(", ");
+
+					ps.printf("%d", vakcode);
+				}
 			}
 
 			ps.println(");\n");
@@ -253,54 +195,31 @@ public class Scanner
 
 	private void generateBeroepsgerichteVakken(PrintStream printStream, String methodeNaam)
 	{
-		Map<Integer, Collection<Integer>> map = beroepsGerichteVakken.asMap();
-
-		generateAdvancedCheckerMethode(printStream, map, methodeNaam);
-	}
-
-	private void generateSeVakkenVanType(PrintStream printStream, String methodeNaam,
-			String indicatieType)
-	{
-		Map<Integer, Collection<Integer>> map = seIndicaties.get(indicatieType).asMap();
-
-		generateAdvancedCheckerMethode(printStream, map, methodeNaam);
-	}
-
-	private void generateCeVakkenVanType(PrintStream printStream, String methodeNaam,
-			String indicatieType)
-	{
-		Map<Integer, Collection<Integer>> map = ceIndicaties.get(indicatieType).asMap();
-
-		generateAdvancedCheckerMethode(printStream, map, methodeNaam);
-	}
-
-	@SuppressWarnings("unused")
-	private void generateEindVakkenVanType(PrintStream printStream, String methodeNaam,
-			String indicatieType)
-	{
-		Map<Integer, Collection<Integer>> map = eindIndicaties.get(indicatieType).asMap();
-
-		generateCheckerMethode(printStream, map, methodeNaam);
-	}
-
-	private void generateCijferLijstVakkenVanType(PrintStream printStream, String methodeNaam,
-			String indicatieType)
-	{
-		Map<Integer, Collection<Integer>> map = cijferLijstIndicaties.get(indicatieType).asMap();
-
-		generateAdvancedCheckerMethode(printStream, map, methodeNaam);
+		generateAdvancedCheckerMethode(printStream, VakRegel::isBeroepsgerichtVak, methodeNaam);
 	}
 
 	public void generateCentraalExamen(File packageDir, String packageName) throws IOException
 	{
-		createFile(packageDir, packageName, "CentraalExamen",
-			ps -> generateCeVakkenVanType(ps, "isCentraalExamenVak", "V"));
+		createFile(
+			packageDir,
+			packageName,
+			"CentraalExamen",
+			ps -> {
+				generateAdvancedCheckerMethode(ps, v -> v.getCijferCE() == Indicatie.VERPLICHT,
+					"isCentraalExamenVerplichtVak");
+				generateAdvancedCheckerMethode(ps, v -> v.getCijferCE() == Indicatie.OPTIONEEL,
+					"isCentraalExamenOptioneelVak");
+			});
 	}
 
 	public void generateSchoolExamen(File packageDir, String packageName) throws IOException
 	{
-		createFile(packageDir, packageName, "SchoolExamen",
-			ps -> generateSeVakkenVanType(ps, "isSchoolExamenVak", "V"));
+		createFile(
+			packageDir,
+			packageName,
+			"SchoolExamen",
+			ps -> generateAdvancedCheckerMethode(ps, VakLogica::heeftVakSchoolExamen,
+				"isSchoolExamenVak"));
 	}
 
 	public void generateBeroepsgerichtVak(File packageDir, String packageName, String matcherClass,
@@ -317,7 +236,8 @@ public class Scanner
 	public void generateOVGVakken(File packageDir, String packageName) throws IOException
 	{
 		createFile(packageDir, packageName, "OVG",
-			ps -> generateCijferLijstVakkenVanType(ps, "isOVGVak", "L"));
+			ps -> generateAdvancedCheckerMethode(ps, VakLogica::isOVGVak, "isOVGVak"));
+
 	}
 
 	public void createFile(File packageDir, String packageName, String className,
@@ -365,5 +285,10 @@ public class Scanner
 			ps.flush();
 		}
 
+	}
+
+	public int getAantalRegels()
+	{
+		return gelezenRegels.size();
 	}
 }
