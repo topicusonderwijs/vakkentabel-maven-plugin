@@ -92,6 +92,8 @@ public class VakkentabelMojo extends AbstractMojo
 				getLog().info(String.format("Analyseren van %s", vakkentabel.getName()));
 				Scanner scanner = new Scanner().scan(vakkentabel);
 
+				getLog().info(String.format("%d vakregels gevonden", scanner.getAantalRegels()));
+
 				getLog()
 					.info(String.format("Genereer %s", packagePrefix.concat(".CentraalExamen")));
 				scanner.generateCentraalExamen(packageDir, packagePrefix);
