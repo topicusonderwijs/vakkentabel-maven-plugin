@@ -130,7 +130,7 @@ public class VakRegel
 	@CheckForNull
 	public static VakRegel parse(String line)
 	{
-		String[] fields = line.split(",");
+		String[] fields = line.split(";");
 
 		if (fields.length < 13)
 		{
