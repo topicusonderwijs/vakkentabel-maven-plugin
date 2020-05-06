@@ -1,13 +1,13 @@
-#!groovy
-
 config { }
 
 node(){
-	git.checkout { }
+	catchError {
+		git.checkout { }
 	
-	maven {	}
+		maven {	}
 
-        publishTestReports { }
-
-        notify { }
+	        publishTestReports { }
+	}
+	
+        notify { slackChannel = "#somtoday-builds" }
 }
