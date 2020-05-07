@@ -22,13 +22,11 @@ import org.sonatype.plexus.build.incremental.BuildContext;
  *
  * <a href=
  * "http://www.duo.nl/zakelijk/klantenservice/softwareleveranciers/Programmas_van_eisen.asp"
- * >http://www.duo.nl/zakelijk/klantenservice/softwareleveranciers/Programmas_van_eisen.
- * asp</a>.
+ * >http://www.duo.nl/zakelijk/klantenservice/softwareleveranciers/Programmas_van_eisen. asp</a>.
  *
  * Voor uitleg rondom deze Maven plugin:
  *
- * <a href=
- * "https://github.com/topicusonderwijs/vakkentabel-maven-plugin/wiki/Vakkentabel-DUO"
+ * <a href= "https://github.com/topicusonderwijs/vakkentabel-maven-plugin/wiki/Vakkentabel-DUO"
  * >Vakkentabel DUO</a>
  *
  * @author Jeroen Steenbeeke
@@ -39,8 +37,8 @@ import org.sonatype.plexus.build.incremental.BuildContext;
 public class VakkentabelMojo extends AbstractMojo
 {
 	/**
-	 * De locatie van de vakkentabel (relatief tov pom-dir, of absoluut tov systeem - dat
-	 * laatste wil je niet)
+	 * De locatie van de vakkentabel (relatief tov pom-dir, of absoluut tov systeem - dat laatste
+	 * wil je niet)
 	 */
 	@Parameter(required = true)
 	public File vakkentabel;
@@ -57,6 +55,7 @@ public class VakkentabelMojo extends AbstractMojo
 	 *
 	 * @see nl.topicus.iridium.util.bron.rules.BronVakRule
 	 */
+	@SuppressWarnings("javadoc")
 	@Parameter(required = false)
 	public String matcherClass;
 
@@ -65,6 +64,7 @@ public class VakkentabelMojo extends AbstractMojo
 	 *
 	 * @see nl.topicus.iridium.util.bron.rules.BronVakRules
 	 */
+	@SuppressWarnings("javadoc")
 	@Parameter(required = false)
 	public String matcherFactory;
 
@@ -98,8 +98,8 @@ public class VakkentabelMojo extends AbstractMojo
 					.info(String.format("Genereer %s", packagePrefix.concat(".CentraalExamen")));
 				scanner.generateCentraalExamen(packageDir, packagePrefix);
 
-				getLog().info(
-					String.format("Genereer %s", packagePrefix.concat(".BeroepsgerichtVak")));
+				getLog()
+					.info(String.format("Genereer %s", packagePrefix.concat(".BeroepsgerichtVak")));
 				scanner.generateBeroepsgerichtVak(packageDir, packagePrefix, matcherClass,
 					matcherFactory);
 
@@ -113,7 +113,8 @@ public class VakkentabelMojo extends AbstractMojo
 			}
 			catch (IOException e)
 			{
-				throw new MojoFailureException("IO exception bij het scannen van de vakkentabel", e);
+				throw new MojoFailureException("IO exception bij het scannen van de vakkentabel",
+					e);
 			}
 			finally
 			{
@@ -204,8 +205,8 @@ public class VakkentabelMojo extends AbstractMojo
 
 		if (!vakkentabel.exists())
 		{
-			throw new MojoFailureException(String.format("Vakkentabel %s bestaat niet",
-				vakkentabel.getName()));
+			throw new MojoFailureException(
+				String.format("Vakkentabel %s bestaat niet", vakkentabel.getName()));
 		}
 
 		getLog().debug("Vakkentabel exists");
