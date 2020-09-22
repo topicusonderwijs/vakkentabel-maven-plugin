@@ -2,8 +2,14 @@ package nl.topicus.onderwijs.vakkentabel;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.FileVisitResult;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.SimpleFileVisitor;
+import java.nio.file.attribute.BasicFileAttributes;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
 
 import org.apache.maven.plugin.AbstractMojo;
@@ -83,6 +89,44 @@ public class VakkentabelMojo extends AbstractMojo
 	{
 		performIntegrityChecks();
 		File packageDir = createOutputDirectories();
+
+		try
+		{
+			long maxSourceDate = vakkentabel.lastModified();
+
+			// use atomic long for effectively final wrapper around long variable
+			AtomicLong maxOutputDate = new AtomicLong(Long.MIN_VALUE);
+
+			Files.walkFileTree(outputDirectory.toPath(), new SimpleFileVisitor<>()
+			{
+				@Override public FileVisitResult visitFile(Path file, BasicFileAttributes attrs)
+						throws IOException
+				{
+					if (Files.isRegularFile(file))
+					{
+						maxOutputDate.updateAndGet(t -> Math.max(t, file.toFile().lastModified()));
+					}
+					return FileVisitResult.CONTINUE;
+				}
+			});
+
+			if (getLog().isDebugEnabled())
+			{
+				getLog().debug("max source file date: " + maxSourceDate + ", max output date: " + maxOutputDate
+						.get());
+			}
+
+			if (maxSourceDate <= maxOutputDate.get())
+			{
+				getLog().info("no source file(s) change(s) detected! Processor task will be skipped");
+				return;
+			}
+		}
+		catch(IOException e)
+		{
+			getLog().warn("Exception tijdens het bepalen van de lastModified: " + e);
+			// behandel deze situatie als dat er geen update controle heeft plaatsgevonden
+		}
 
 		if (buildContext == null || !buildContext.isIncremental()
 			|| buildContext.hasDelta(vakkentabel))
