@@ -1,13 +1,13 @@
 config { }
 
 node(){
-	catchError {
-		git.checkout { }
+	git.checkout { }
 	
+	catchError {
 		maven {	}
-
-	        publishTestReports { }
 	}
+
+        reportIssues()
 	
         notify { slackChannel = "#somtoday-builds" }
 }
