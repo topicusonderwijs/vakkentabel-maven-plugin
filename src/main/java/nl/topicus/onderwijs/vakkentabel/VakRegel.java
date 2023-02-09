@@ -1,7 +1,7 @@
 package nl.topicus.onderwijs.vakkentabel;
 
-import javax.annotation.CheckForNull;
-import javax.annotation.Nonnull;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 public class VakRegel
 {
@@ -33,11 +33,11 @@ public class VakRegel
 
 	private final boolean combinatieCijferToegestaan;
 
-	private VakRegel(int vakcode, String naamVakKort, String typeRegistratieCode,
+	private VakRegel(int vakcode, @NotNull String naamVakKort, @NotNull String typeRegistratieCode,
 			int registratieCode, int studieLastUren, boolean beroepsgerichtVak,
-			@Nonnull Indicatie beoordelingSE, @Nonnull Indicatie cijferSE,
-			@Nonnull Indicatie cijferCE, @Nonnull Indicatie eindcijfer,
-			@Nonnull Indicatie cijferCijferlijst, @Nonnull Indicatie combinatieCijfer,
+			@NotNull Indicatie beoordelingSE, @NotNull Indicatie cijferSE,
+			@NotNull Indicatie cijferCE, @NotNull Indicatie eindcijfer,
+			@NotNull Indicatie cijferCijferlijst, @NotNull Indicatie combinatieCijfer,
 			boolean combinatieCijferToegestaan)
 	{
 		super();
@@ -61,11 +61,13 @@ public class VakRegel
 		return vakcode;
 	}
 
+	@NotNull
 	public String getNaamVakKort()
 	{
 		return naamVakKort;
 	}
 
+	@NotNull
 	public String getTypeRegistratieCode()
 	{
 		return typeRegistratieCode;
@@ -86,37 +88,37 @@ public class VakRegel
 		return beroepsgerichtVak;
 	}
 
-	@Nonnull
+	@NotNull
 	public Indicatie getBeoordelingSE()
 	{
 		return beoordelingSE;
 	}
 
-	@Nonnull
+	@NotNull
 	public Indicatie getCijferSE()
 	{
 		return cijferSE;
 	}
 
-	@Nonnull
+	@NotNull
 	public Indicatie getCijferCE()
 	{
 		return cijferCE;
 	}
 
-	@Nonnull
+	@NotNull
 	public Indicatie getEindcijfer()
 	{
 		return eindcijfer;
 	}
 
-	@Nonnull
+	@NotNull
 	public Indicatie getCijferCijferlijst()
 	{
 		return cijferCijferlijst;
 	}
 
-	@Nonnull
+	@NotNull
 	public Indicatie getCombinatieCijfer()
 	{
 		return combinatieCijfer;
@@ -127,7 +129,7 @@ public class VakRegel
 		return combinatieCijferToegestaan;
 	}
 
-	@CheckForNull
+	@Nullable
 	public static VakRegel parse(String line)
 	{
 		String[] fields = line.split(";");

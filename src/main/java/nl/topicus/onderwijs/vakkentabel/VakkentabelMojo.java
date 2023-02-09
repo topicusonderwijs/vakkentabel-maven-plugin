@@ -10,7 +10,6 @@ import java.nio.file.attribute.BasicFileAttributes;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicLong;
-import java.util.stream.Collectors;
 
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
@@ -21,6 +20,7 @@ import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.apache.maven.project.MavenProject;
+import org.jetbrains.annotations.NotNull;
 import org.sonatype.plexus.build.incremental.BuildContext;
 
 /**
@@ -99,7 +99,8 @@ public class VakkentabelMojo extends AbstractMojo
 
 			Files.walkFileTree(outputDirectory.toPath(), new SimpleFileVisitor<>()
 			{
-				@Override public FileVisitResult visitFile(Path file, BasicFileAttributes attrs)
+				@Override
+				public FileVisitResult visitFile(Path file, BasicFileAttributes attrs)
 						throws IOException
 				{
 					if (Files.isRegularFile(file))
@@ -112,17 +113,18 @@ public class VakkentabelMojo extends AbstractMojo
 
 			if (getLog().isDebugEnabled())
 			{
-				getLog().debug("max source file date: " + maxSourceDate + ", max output date: " + maxOutputDate
-						.get());
+				getLog().debug("max source file date: " + maxSourceDate + ", max output date: "
+					+ maxOutputDate.get());
 			}
 
 			if (maxSourceDate <= maxOutputDate.get())
 			{
-				getLog().info("no source file(s) change(s) detected! Processor task will be skipped");
+				getLog()
+					.info("no source file(s) change(s) detected! Processor task will be skipped");
 				return;
 			}
 		}
-		catch(IOException e)
+		catch (IOException e)
 		{
 			getLog().warn("Exception tijdens het bepalen van de lastModified: " + e);
 			// behandel deze situatie als dat er geen update controle heeft plaatsgevonden
@@ -171,6 +173,7 @@ public class VakkentabelMojo extends AbstractMojo
 
 	}
 
+	@NotNull
 	private File createOutputDirectories() throws MojoFailureException
 	{
 		if (!outputDirectory.exists() && !outputDirectory.mkdirs())
@@ -240,8 +243,8 @@ public class VakkentabelMojo extends AbstractMojo
 
 		if (!missing.isEmpty())
 		{
-			throw new MojoFailureException(String.format("Ontbrekende configuratie-opties: %s",
-				missing.stream().collect(Collectors.joining(", "))));
+			throw new MojoFailureException(
+				String.format("Ontbrekende configuratie-opties: %s", String.join(", ", missing)));
 		}
 
 		getLog().debug(String.format("- vakkentabel: %s", vakkentabel.getName()));

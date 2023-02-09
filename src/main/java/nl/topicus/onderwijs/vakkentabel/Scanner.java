@@ -6,6 +6,7 @@ import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.PrintStream;
+import java.nio.charset.StandardCharsets;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Map;
@@ -15,15 +16,13 @@ import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
-import javax.annotation.CheckForNull;
-import javax.annotation.Nonnull;
-
 import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Table;
 
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * Parser voor CSV-bestanden in het door DUO aangeleverde formaat
@@ -44,11 +43,9 @@ public class Scanner
 		gelezenRegels = HashBasedTable.create();
 	}
 
-	@SuppressFBWarnings(value = "DM_DEFAULT_ENCODING",
-			justification = "Er is geen manier om een encoding op te geven bij deze classes")
 	public Scanner scan(File file) throws IOException
 	{
-		try (BufferedReader reader = new BufferedReader(new FileReader(file)))
+		try (BufferedReader reader = new BufferedReader(new FileReader(file, StandardCharsets.UTF_8)))
 		{
 
 			String next = null;
@@ -67,20 +64,20 @@ public class Scanner
 		return this;
 	}
 
-	private void addRegel(int opleiding, int vakcode, @Nonnull VakRegel regel)
+	private void addRegel(int opleiding, int vakcode, @NotNull VakRegel regel)
 	{
 		gelezenRegels.put(opleiding, vakcode, regel);
 
 	}
 
-	@CheckForNull
+	@Nullable
 	public VakRegel getRegel(int opleiding, int vakcode)
 	{
 		return gelezenRegels.get(opleiding, vakcode);
 	}
 
-	private void generateAdvancedCheckerMethode(PrintStream printStream,
-			Predicate<VakRegel> vakRegelPredicate, String methodeNaam)
+	private void generateAdvancedCheckerMethode(@NotNull PrintStream printStream,
+			@NotNull Predicate<VakRegel> vakRegelPredicate,  @NotNull String methodeNaam)
 	{
 		printStream.println("\tpublic static boolean " + methodeNaam
 			+ "(int opleidingIlt, int vakIlt)\n");
@@ -136,7 +133,7 @@ public class Scanner
 
 	}
 
-	private void generateBeroepsgerichteVakkenRule(PrintStream ps)
+	private void generateBeroepsgerichteVakkenRule(@NotNull PrintStream ps)
 	{
 
 		ps.println("\tpublic static BronVakRule getBeroepsgerichteVakken(int iltCode)\n");
@@ -193,12 +190,12 @@ public class Scanner
 		}
 	}
 
-	private void generateBeroepsgerichteVakken(PrintStream printStream, String methodeNaam)
+	private void generateBeroepsgerichteVakken(@NotNull PrintStream printStream, @NotNull String methodeNaam)
 	{
 		generateAdvancedCheckerMethode(printStream, VakRegel::isBeroepsgerichtVak, methodeNaam);
 	}
 
-	public void generateCentraalExamen(File packageDir, String packageName) throws IOException
+	public void generateCentraalExamen(@NotNull File packageDir, @NotNull String packageName) throws IOException
 	{
 		createFile(
 			packageDir,
@@ -212,7 +209,7 @@ public class Scanner
 			});
 	}
 
-	public void generateSchoolExamen(File packageDir, String packageName) throws IOException
+	public void generateSchoolExamen(@NotNull File packageDir, @NotNull String packageName) throws IOException
 	{
 		createFile(
 			packageDir,
@@ -222,8 +219,8 @@ public class Scanner
 				"isSchoolExamenVak"));
 	}
 
-	public void generateBeroepsgerichtVak(File packageDir, String packageName, String matcherClass,
-			String matcherFactory) throws IOException
+	public void generateBeroepsgerichtVak(@NotNull File packageDir, @NotNull String packageName, @NotNull String matcherClass,
+			@NotNull String matcherFactory) throws IOException
 	{
 		createFile(packageDir, packageName, "BeroepsgerichtVak", ps -> {
 			generateBeroepsgerichteVakken(ps, "isBeroepsgerichtVak");
@@ -233,21 +230,21 @@ public class Scanner
 			.filter(Objects::nonNull).sorted().collect(Collectors.toList()));
 	}
 
-	public void generateOVGVakken(File packageDir, String packageName) throws IOException
+	public void generateOVGVakken(@NotNull File packageDir, @NotNull String packageName) throws IOException
 	{
 		createFile(packageDir, packageName, "OVG",
 			ps -> generateAdvancedCheckerMethode(ps, VakLogica::isOVGVak, "isOVGVak"));
 
 	}
 
-	public void createFile(File packageDir, String packageName, String className,
-			Consumer<PrintStream> methodInvocation) throws IOException
+	public void createFile(@NotNull File packageDir, @NotNull String packageName, @NotNull String className,
+			@NotNull Consumer<PrintStream> methodInvocation) throws IOException
 	{
 		createFile(packageDir, packageName, className, methodInvocation, ImmutableList.of());
 	}
 
-	public void createFile(File packageDir, String packageName, String className,
-			Consumer<PrintStream> methodInvocation, Iterable<String> extraImports)
+	public void createFile(@NotNull File packageDir, @NotNull String packageName, @NotNull String className,
+			@NotNull Consumer<PrintStream> methodInvocation, @NotNull Iterable<String> extraImports)
 			throws IOException
 	{
 		try (FileOutputStream fos =
@@ -257,7 +254,7 @@ public class Scanner
 			ps.printf("package %s;", packageName);
 			ps.println();
 			ps.println();
-			ps.println("import javax.annotation.Generated;");
+			ps.println("import jakarta.annotation.Generated;");
 			ps.println();
 			ps.println("import com.google.common.collect.Sets;");
 			for (String i : extraImports)

@@ -1,8 +1,7 @@
 package nl.topicus.onderwijs.vakkentabel;
 
-import javax.annotation.CheckForNull;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * Door DUO gehanteerde waardelijst voor verschillende indicaties
@@ -22,13 +21,13 @@ public enum Indicatie
 		this.tabelIndicatie = name().substring(0, 1);
 	}
 
-	@Nonnull
+	@NotNull
 	public String getTabelIndicatie()
 	{
 		return tabelIndicatie;
 	}
 
-	@CheckForNull
+	@Nullable
 	public static Indicatie parse(@Nullable String indicatie)
 	{
 		for (Indicatie i : values())
