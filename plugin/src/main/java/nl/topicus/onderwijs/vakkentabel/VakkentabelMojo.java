@@ -59,19 +59,19 @@ public class VakkentabelMojo extends AbstractMojo
 	/**
 	 * Type dat gebruikt wordt voor methoden die matchers terug geven
 	 *
-	 * @see nl.topicus.iridium.util.bron.rules.BronVakRule
+	 * @see nl.topicus.vakkentabel.example.VakMatcher
 	 */
 	@SuppressWarnings("javadoc")
-	@Parameter(required = false)
+	@Parameter(required = true)
 	public String matcherClass;
 
 	/**
 	 * Type dat gebruikt wordt voor het aanmaken van bovenstaande matchers
 	 *
-	 * @see nl.topicus.iridium.util.bron.rules.BronVakRules
+	 * @see nl.topicus.vakkentabel.example.VakMatcherFactory
 	 */
 	@SuppressWarnings("javadoc")
-	@Parameter(required = false)
+	@Parameter(required = true)
 	public String matcherFactory;
 
 	@Parameter(required = true,

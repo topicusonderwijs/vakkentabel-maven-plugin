@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>nl.topicus.onderwijs.vakkentabel</groupId>
+        <artifactId>vakkentabel-maven-plugin-parent</artifactId>
+        <version>1.6-jakarta-SNAPSHOT</version>
+        <relativePath>../pom.xml</relativePath>
+    </parent>
+
+    <artifactId>vakkentabel-maven-plugin-example-project</artifactId>
+    <packaging>jar</packaging>
+
+    <dependencies>
+        <dependency>
+            <groupId>jakarta.annotation</groupId>
+            <artifactId>jakarta.annotation-api</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.jetbrains</groupId>
+            <artifactId>annotations</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-api</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-engine</artifactId>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>nl.topicus.onderwijs.vakkentabel</groupId>
+                    <artifactId>vakkentabel-maven-plugin</artifactId>
+                    <version>${project.version}</version>
+                    <executions>
+                        <execution>
+                            <id>vakkentabel</id>
+                            <goals>
+                                <goal>generate</goal>
+                            </goals>
+                        </execution>
+                    </executions>
+                    <configuration>
+                        <vakkentabel>src/main/resources/vakkentabel.csv</vakkentabel>
+                        <packagePrefix>nl.topicus.vakkentabel.example.logic</packagePrefix>
+                        <matcherClass>nl.topicus.vakkentabel.example.VakMatcher</matcherClass>
+                        <matcherFactory>nl.topicus.vakkentabel.example.MatcherFactory</matcherFactory>
+                        <outputDirectory>${project.build.directory}/generated-sources/vakkentabel</outputDirectory>
+                    </configuration>
+                </plugin>
+            </plugins>
+        </pluginManagement>
+        <plugins>
+            <plugin>
+            <groupId>nl.topicus.onderwijs.vakkentabel</groupId>
+            <artifactId>vakkentabel-maven-plugin</artifactId>
+
+            </plugin>
+        </plugins>
+    </build>
+</project>

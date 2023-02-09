@@ -9,18 +9,17 @@ import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import com.google.common.collect.HashBasedTable;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Lists;
 import com.google.common.collect.Table;
-
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -31,21 +30,21 @@ import org.jetbrains.annotations.Nullable;
  */
 public class Scanner
 {
-	private static DateTimeFormatter ISO_8601_FORMAT = DateTimeFormatter.ISO_OFFSET_DATE_TIME;
 
-	private Table<Integer, Integer, VakRegel> gelezenRegels;
+	private final Table<Integer, Integer, VakRegel> gelezenRegels;
 
-	final String currentDateIso8601 = ZonedDateTime.now().format(ISO_8601_FORMAT);
+	final String currentDateIso8601 =
+		ZonedDateTime.now().format(DateTimeFormatter.ISO_OFFSET_DATE_TIME);
 
 	public Scanner()
 	{
-
 		gelezenRegels = HashBasedTable.create();
 	}
 
 	public Scanner scan(File file) throws IOException
 	{
-		try (BufferedReader reader = new BufferedReader(new FileReader(file, StandardCharsets.UTF_8)))
+		try (BufferedReader reader =
+			new BufferedReader(new FileReader(file, StandardCharsets.UTF_8)))
 		{
 
 			String next = null;
@@ -77,10 +76,10 @@ public class Scanner
 	}
 
 	private void generateAdvancedCheckerMethode(@NotNull PrintStream printStream,
-			@NotNull Predicate<VakRegel> vakRegelPredicate,  @NotNull String methodeNaam)
+			@NotNull Predicate<VakRegel> vakRegelPredicate, @NotNull String methodeNaam)
 	{
-		printStream.println("\tpublic static boolean " + methodeNaam
-			+ "(int opleidingIlt, int vakIlt)\n");
+		printStream
+			.println("\tpublic static boolean " + methodeNaam + "(int opleidingIlt, int vakIlt)\n");
 		printStream.println("\t{");
 		printStream.println("\t\tswitch(opleidingIlt)");
 		printStream.println("\t\t{");
@@ -110,7 +109,7 @@ public class Scanner
 			printStream.println();
 			printStream.println("\t{");
 			//
-			printStream.print("\t\treturn Sets.newHashSet(");
+			printStream.print("\t\treturn Set.of(");
 			int i = 0;
 			for (Entry<Integer, VakRegel> vakEntry : entry.getValue().entrySet())
 			{
@@ -133,10 +132,10 @@ public class Scanner
 
 	}
 
-	private void generateBeroepsgerichteVakkenRule(@NotNull PrintStream ps)
+	private void generateBeroepsgerichteVakkenRule(@NotNull PrintStream ps, @NotNull String matcherClass)
 	{
 
-		ps.println("\tpublic static BronVakRule getBeroepsgerichteVakken(int iltCode)\n");
+		ps.printf("\tpublic static %s getBeroepsgerichteVakken(int iltCode)%n", matcherClass);
 		ps.println("\t{");
 		ps.println("\t\tswitch(iltCode)");
 		ps.println("\t\t{");
@@ -161,7 +160,7 @@ public class Scanner
 		{
 			int opleiding = entry.getKey();
 
-			ps.print("\tprivate static BronVakRule getBeroepsgerichteVakken");
+			ps.printf("\tprivate static %s getBeroepsgerichteVakken", matcherClass);
 			ps.print(opleiding);
 			ps.print("()\n");
 			ps.println("\t{");
@@ -190,73 +189,73 @@ public class Scanner
 		}
 	}
 
-	private void generateBeroepsgerichteVakken(@NotNull PrintStream printStream, @NotNull String methodeNaam)
+	private void generateBeroepsgerichteVakken(@NotNull PrintStream printStream,
+			@NotNull String methodeNaam)
 	{
 		generateAdvancedCheckerMethode(printStream, VakRegel::isBeroepsgerichtVak, methodeNaam);
 	}
 
-	public void generateCentraalExamen(@NotNull File packageDir, @NotNull String packageName) throws IOException
+	public void generateCentraalExamen(@NotNull File packageDir, @NotNull String packageName)
+			throws IOException
 	{
-		createFile(
-			packageDir,
-			packageName,
-			"CentraalExamen",
-			ps -> {
-				generateAdvancedCheckerMethode(ps, v -> v.getCijferCE() == Indicatie.VERPLICHT,
-					"isCentraalExamenVerplichtVak");
-				generateAdvancedCheckerMethode(ps, v -> v.getCijferCE() == Indicatie.OPTIONEEL,
-					"isCentraalExamenOptioneelVak");
-			});
+		createFile(packageDir, packageName, "CentraalExamen", ps -> {
+			generateAdvancedCheckerMethode(ps, v -> v.getCijferCE() == Indicatie.VERPLICHT,
+				"isCentraalExamenVerplichtVak");
+			generateAdvancedCheckerMethode(ps, v -> v.getCijferCE() == Indicatie.OPTIONEEL,
+				"isCentraalExamenOptioneelVak");
+		});
 	}
 
-	public void generateSchoolExamen(@NotNull File packageDir, @NotNull String packageName) throws IOException
+	public void generateSchoolExamen(@NotNull File packageDir, @NotNull String packageName)
+			throws IOException
 	{
-		createFile(
-			packageDir,
-			packageName,
-			"SchoolExamen",
-			ps -> generateAdvancedCheckerMethode(ps, VakLogica::heeftVakSchoolExamen,
-				"isSchoolExamenVak"));
+		createFile(packageDir, packageName, "SchoolExamen", ps -> generateAdvancedCheckerMethode(ps,
+			VakLogica::heeftVakSchoolExamen, "isSchoolExamenVak"));
 	}
 
-	public void generateBeroepsgerichtVak(@NotNull File packageDir, @NotNull String packageName, @NotNull String matcherClass,
-			@NotNull String matcherFactory) throws IOException
+	public void generateBeroepsgerichtVak(@NotNull File packageDir, @NotNull String packageName,
+			@NotNull String matcherClass, @NotNull String matcherFactory) throws IOException
 	{
 		createFile(packageDir, packageName, "BeroepsgerichtVak", ps -> {
 			generateBeroepsgerichteVakken(ps, "isBeroepsgerichtVak");
-			generateBeroepsgerichteVakkenRule(ps);
+			generateBeroepsgerichteVakkenRule(ps, matcherClass);
 
-		}, Lists.newArrayList(matcherClass, String.format("static %s.*", matcherFactory)).stream()
-			.filter(Objects::nonNull).sorted().collect(Collectors.toList()));
+		}, Stream.of(matcherClass, String.format("static %s.*", matcherFactory))
+			.filter(Objects::nonNull)
+			.sorted()
+			.collect(Collectors.toList()));
 	}
 
-	public void generateOVGVakken(@NotNull File packageDir, @NotNull String packageName) throws IOException
+	public void generateOVGVakken(@NotNull File packageDir, @NotNull String packageName)
+			throws IOException
 	{
 		createFile(packageDir, packageName, "OVG",
 			ps -> generateAdvancedCheckerMethode(ps, VakLogica::isOVGVak, "isOVGVak"));
 
 	}
 
-	public void createFile(@NotNull File packageDir, @NotNull String packageName, @NotNull String className,
-			@NotNull Consumer<PrintStream> methodInvocation) throws IOException
-	{
-		createFile(packageDir, packageName, className, methodInvocation, ImmutableList.of());
-	}
-
-	public void createFile(@NotNull File packageDir, @NotNull String packageName, @NotNull String className,
-			@NotNull Consumer<PrintStream> methodInvocation, @NotNull Iterable<String> extraImports)
+	public void createFile(@NotNull File packageDir, @NotNull String packageName,
+			@NotNull String className, @NotNull Consumer<PrintStream> methodInvocation)
 			throws IOException
 	{
-		try (FileOutputStream fos =
-			new FileOutputStream(new File(packageDir, className.concat(".java")));
-				PrintStream ps = new PrintStream(fos, true, "UTF-8"))
+		createFile(packageDir, packageName, className, methodInvocation, List.of());
+	}
+
+	public void createFile(@NotNull File packageDir, @NotNull String packageName,
+			@NotNull String className, @NotNull Consumer<PrintStream> methodInvocation,
+			@NotNull Iterable<String> extraImports) throws IOException
+	{
+		try (
+			FileOutputStream fos =
+				new FileOutputStream(new File(packageDir, className.concat(".java")));
+			PrintStream ps = new PrintStream(fos, true, "UTF-8"))
 		{
 			ps.printf("package %s;", packageName);
 			ps.println();
 			ps.println();
 			ps.println("import jakarta.annotation.Generated;");
+			ps.println("import java.util.Set;");
 			ps.println();
-			ps.println("import com.google.common.collect.Sets;");
 			for (String i : extraImports)
 			{
 				ps.printf("import %s;", i);
@@ -264,9 +263,11 @@ public class Scanner
 			}
 			ps.println();
 			ps.println("/**");
-			ps.println(" * Gegeneerd door {@code nl.topicus.onderwijs.vakkentabel.VakkentabelMojo}");
+			ps.println(
+				" * Gegeneerd door {@code nl.topicus.onderwijs.vakkentabel.VakkentabelMojo}");
 			ps.println(" * @see <a");
-			ps.println(" *      href=\"https://github.com/topicusonderwijs/vakkentabel-maven-plugin/wiki/Vakkentabel-DUO\">Vakkentabel");
+			ps.println(
+				" *      href=\"https://github.com/topicusonderwijs/vakkentabel-maven-plugin/wiki/Vakkentabel-DUO\">Vakkentabel");
 			ps.println(" *      DUO</a>");
 			ps.println(" */");
 			ps.printf(
