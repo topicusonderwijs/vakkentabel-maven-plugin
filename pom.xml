@@ -4,7 +4,7 @@
 	<parent>
 		<groupId>nl.topicus.onderwijs.parent</groupId>
 		<artifactId>onderwijs-parent-base</artifactId>
-		<version>2023.4.7-jakarta-SNAPSHOT</version>
+		<version>2023.8.3</version>
 	</parent>
 
 	<groupId>nl.topicus.onderwijs.vakkentabel</groupId>
