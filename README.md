@@ -2,9 +2,12 @@
 
 (english translation below)
 
-N.B: Vanaf versie 1.3 moeten de ingelezen csv een puntkomma (;) als scheidingsteken hebben. In vorige versies was dit een komma (,).
+N.B: Vanaf versie 1.3 moeten de ingelezen csv een puntkomma (;) als scheidingsteken hebben. In vorige versies was dit
+een komma (,).
 
-Dit is een maven plugin om een set aan util/helper klassen te maken op basis van de DUO vakkentabel (http://www.duo.nl/zakelijk/klantenservice/softwareleveranciers/Programmas_van_eisen.asp). Deze klassen bevatten methoden als `public static boolean isBeroepsgerichtVak(int opleidingIlt, int vakIlt)`.
+Dit is een maven plugin om een set aan util/helper klassen te maken op basis van de DUO
+vakkentabel (http://www.duo.nl/zakelijk/klantenservice/softwareleveranciers/Programmas_van_eisen.asp). Deze klassen
+bevatten methoden als `public static boolean isBeroepsgerichtVak(int opleidingIlt, int vakIlt)`.
 
 De plugin is gebouwd voor Maven3 en geschikt voor zowel commandline uitvoer als m2e.
 
@@ -13,14 +16,23 @@ Zie hieronder wat je moet toevoegen in je pom.xml om deze plugin te gebruiken
 Releasen
 =========
 
-* mvn release:prepare 
-* mvn release:perform 
+Releases worden door Jenkins gedaan bij elke commit, en hebben, afhankelijk van de branch, het volgende patroon:
+
+| Jakarta versie | Versie patroon        |
+|----------------|-----------------------|
+| 10+            | `yyyy.MM.ddhhmm`      |
+| 8              | `yyyy.MM.ddhhmm-jee8` |
+
+Je kan de meest recente versie vinden in de git tags, of door de Jenkins console log te lezen.
 
 # English translation
 
-This is a maven plugin to convert Dutch educational information from DUO to util classes which answer such questions as whether or not a subject is required for a specific curriculum.
+This is a maven plugin to convert Dutch educational information from DUO to util classes which answer such questions as
+whether or not a subject is required for a specific curriculum.
 
-It probably won't be of use for non-Dutch except as an example of how to create a source-generating maven plugin. This plugin should work from the commandline as well as integrate with m2e. See below for how to configure your pom to use this plugin.
+It probably won't be of use for non-Dutch except as an example of how to create a source-generating maven plugin. This
+plugin should work from the commandline as well as integrate with m2e. See below for how to configure your pom to use
+this plugin.
 
 # Example usage (pom.xml)
 
