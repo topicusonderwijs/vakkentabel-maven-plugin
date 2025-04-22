@@ -5,7 +5,7 @@
     <parent>
         <groupId>nl.topicus.onderwijs.vakkentabel</groupId>
         <artifactId>vakkentabel-maven-plugin-parent</artifactId>
-        <version>1.6-jakarta-SNAPSHOT</version>
+        <version>2025.04.22.080751</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
