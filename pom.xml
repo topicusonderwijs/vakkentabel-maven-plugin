@@ -9,7 +9,7 @@
 
 	<groupId>nl.topicus.onderwijs.vakkentabel</groupId>
 	<artifactId>vakkentabel-maven-plugin-parent</artifactId>
-	<version>1.6-jakarta-SNAPSHOT</version>
+	<version>2025.12.02.092500</version>
 	<packaging>pom</packaging>
 
 	<name>Vakkentabel-scanner</name>
@@ -29,7 +29,7 @@
 	<scm>
 		<url>https://github.com/topicusonderwijs/vakkentabel-maven-plugin</url>
 		<connection>scm:git:git@github.com:topicusonderwijs/vakkentabel-maven-plugin.git</connection>
-		<tag>HEAD</tag>
+		<tag>vakkentabel-maven-plugin-2025.12.02.092500</tag>
 	</scm>
 
 	<modules>
