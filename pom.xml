@@ -4,7 +4,7 @@
 	<parent>
 		<groupId>nl.topicus.onderwijs.parent</groupId>
 		<artifactId>onderwijs-parent-base</artifactId>
-		<version>2026.34-ee10</version>
+		<version>2026.33-ee11</version>
 	</parent>
 
 	<groupId>nl.topicus.onderwijs.vakkentabel</groupId>
@@ -36,6 +36,10 @@
 		<module>example</module>
 		<module>plugin</module>
 	</modules>
+
+	<properties>
+		<argLine />
+	</properties>
 
 	<dependencyManagement>
 		<dependencies>
