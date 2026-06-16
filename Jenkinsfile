@@ -1,5 +1,5 @@
-boolean isRelease = env.BRANCH_NAME == 'main' || env.BRANCH_NAME == 'main-jee8'
-String suffix = env.BRANCH_NAME == 'main-jee8' ? '-jee8' : ''
+boolean isRelease = env.BRANCH_NAME == 'main' || env.BRANCH_NAME == 'main-ee10'
+String suffix = env.BRANCH_NAME == 'main-ee10' ? '-ee10' : ''
 
 config {
 	cronTrigger = ""
